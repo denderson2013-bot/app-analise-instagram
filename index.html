@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crie seu App de Análise de Instagram com IA — Formação Avalanche</title>
+  <meta name="description" content="Crie um aplicativo de análise de perfil do Instagram usando Google AI Studio. Gratuito, sem código.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { 'inter': ['Inter', 'sans-serif'] },
+          colors: {
+            dark: { 900: '#020408', 800: '#050505', 700: '#0a0a0f' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    body { background: #020408; }
+
+    .glow-red { box-shadow: 0 0 30px rgba(239, 68, 68, 0.15), 0 0 60px rgba(239, 68, 68, 0.05); }
+    .glow-red-strong { box-shadow: 0 0 40px rgba(239, 68, 68, 0.25), 0 0 80px rgba(239, 68, 68, 0.1); }
+    .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.06); }
+    .glass-red { background: rgba(239, 68, 68, 0.04); backdrop-filter: blur(12px); border: 1px solid rgba(239, 68, 68, 0.12); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    .btn-shimmer {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #dc2626, #ef4444, #dc2626);
+    }
+    .btn-shimmer::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-in {
+      opacity: 0;
+      animation: fadeInUp 0.7s ease-out forwards;
+    }
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+    .delay-5 { animation-delay: 0.5s; }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.3), transparent);
+    }
+
+    .step-number {
+      width: 48px;
+      height: 48px;
+      min-width: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.25rem;
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .prompt-box {
+      background: #0d0d0d;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .prompt-box::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(239, 68, 68, 0.5), transparent);
+    }
+
+    .copy-btn {
+      transition: all 0.3s;
+    }
+    .copy-btn:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+    .copy-btn.copied {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.4);
+      color: #22c55e;
+    }
+
+    .feature-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      padding: 20px;
+      backdrop-filter: blur(8px);
+    }
+
+    code { font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace; }
+  </style>
+</head>
+<body class="text-white antialiased">
+
+  <!-- ============================================ -->
+  <!-- Seção 1: Oferta Formação Avalanche (INTACTA) -->
+  <!-- ============================================ -->
+  <section class="min-h-screen flex flex-col items-center justify-center px-4 py-16 md:py-24 relative overflow-hidden">
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-red-500/5 rounded-full blur-[150px] pointer-events-none"></div>
+
+    <div class="max-w-5xl mx-auto relative z-10">
+      <div class="text-center mb-10 animate-in delay-1">
+        <span class="badge bg-red-500/10 border border-red-500/20 text-red-400">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          MÓDULO EXCLUSIVO — SÓ NA FORMAÇÃO AVALANCHE
+        </span>
+      </div>
+
+      <div class="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+        <div class="order-2 md:order-1">
+          <h1 class="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight mb-4 leading-tight animate-in delay-2">
+            Se você ainda não tem o seu OpenClaw, nós te ajudamos a instalar dentro da
+            <span class="bg-gradient-to-r from-red-500 to-red-400 bg-clip-text text-transparent"> Formação Avalanche</span>
+          </h1>
+
+          <h2 class="text-xl md:text-2xl font-bold text-white/90 mb-6 animate-in delay-2">
+            A melhor agente autônoma que realmente coordena
+            <span class="text-red-500">uma equipe inteira</span>
+          </h2>
+
+          <p class="text-lg text-gray-300 mb-4 animate-in delay-3">
+            Copy, Designer, Social Seller, Mídia, Vendedor SDR. Tudo pronto e rodando em menos de um dia, 100% com inteligência artificial.
+          </p>
+          <p class="text-gray-400 mb-8 animate-in delay-3">
+            Use essa estrutura na sua empresa, ou fature vendendo serviços feitos pelos seus novos agentes!
+          </p>
+
+          <div class="flex flex-wrap gap-3 mb-10 animate-in delay-4">
+            <span class="pill glass text-gray-300">
+              <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+              Aula prática
+            </span>
+            <span class="pill glass text-gray-300">
+              <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+              Sem código
+            </span>
+            <span class="pill glass text-gray-300">
+              <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/></svg>
+              Roda 24h sozinho
+            </span>
+          </div>
+
+          <a href="https://pay.hotmart.com/N100965162Y?off=dwz4x1ft" target="_blank" rel="noopener noreferrer"
+             class="btn-shimmer inline-flex items-center justify-center gap-3 px-10 py-5 rounded-xl text-white font-bold text-lg tracking-wide glow-red-strong transition-all duration-300 hover:scale-[1.03] hover:shadow-red-500/30 hover:shadow-2xl animate-in delay-5">
+            <span class="relative z-10">QUERO MEU AGENTE DE IA RODANDO 24H</span>
+            <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+          </a>
+        </div>
+
+        <div class="glass-red rounded-2xl p-3 glow-red order-1 md:order-2 animate-in delay-3">
+          <img src="https://formacao2.crmavalanche.com/assets/naia-openclaw-banner.png"
+               alt="Naia — Agente IA Autônoma da Formação Avalanche"
+               class="w-full rounded-xl"
+               loading="lazy">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Divider -->
+  <div class="section-divider max-w-3xl mx-auto"></div>
+
+  <!-- ================================================ -->
+  <!-- Seção 2: Passo a Passo — App Análise de Instagram -->
+  <!-- ================================================ -->
+  <section class="px-4 py-16 md:py-24 relative overflow-hidden">
+    <div class="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-red-500/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+    <div class="max-w-4xl w-full mx-auto relative z-10">
+      <!-- Badge -->
+      <div class="text-center mb-6">
+        <span class="badge glass-red text-red-400 inline-block">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          TUTORIAL GRATUITO
+        </span>
+      </div>
+
+      <!-- Título -->
+      <h2 class="text-3xl md:text-5xl font-black tracking-tight mb-4 text-center">
+        Crie seu App de<br>
+        <span class="bg-gradient-to-r from-red-500 to-red-400 bg-clip-text text-transparent">Análise de Instagram</span>
+      </h2>
+
+      <p class="text-lg md:text-xl text-gray-400 mb-6 text-center max-w-2xl mx-auto">
+        Um aplicativo completo, de graça, sem código. Você pode vender assinaturas, cobrar por análise ou usar nos seus projetos.
+      </p>
+
+      <!-- O que o app faz -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-16">
+        <div class="feature-card text-center">
+          <div class="text-2xl mb-2">📊</div>
+          <p class="text-sm text-gray-300 font-medium">Análise completa do perfil</p>
+        </div>
+        <div class="feature-card text-center">
+          <div class="text-2xl mb-2">💡</div>
+          <p class="text-sm text-gray-300 font-medium">Pontos fortes e fracos</p>
+        </div>
+        <div class="feature-card text-center">
+          <div class="text-2xl mb-2">🎯</div>
+          <p class="text-sm text-gray-300 font-medium">Estratégia de conteúdo</p>
+        </div>
+        <div class="feature-card text-center">
+          <div class="text-2xl mb-2">📅</div>
+          <p class="text-sm text-gray-300 font-medium">Roteiro de 30 dias</p>
+        </div>
+      </div>
+
+      <!-- Passos -->
+      <div class="space-y-8 mb-16">
+
+        <!-- Passo 1 -->
+        <div class="flex gap-5 items-start">
+          <div class="step-number">1</div>
+          <div>
+            <h3 class="text-xl font-bold mb-2">Acesse o Google AI Studio</h3>
+            <p class="text-gray-400">Abra o Google e pesquise <strong class="text-white">Google AI Studio</strong>. Faça login com sua conta do Google. É grátis.</p>
+            <a href="https://aistudio.google.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 mt-3 text-red-400 hover:text-red-300 font-medium text-sm transition-colors">
+              Abrir Google AI Studio
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Passo 2 -->
+        <div class="flex gap-5 items-start">
+          <div class="step-number">2</div>
+          <div>
+            <h3 class="text-xl font-bold mb-2">Clique em "Build"</h3>
+            <p class="text-gray-400">Depois de fazer login, clique no botão <strong class="text-white">Build</strong> para abrir a tela de criação de aplicativo. A plataforma cria tudo pra você: front-end, código e lógica.</p>
+          </div>
+        </div>
+
+        <!-- Passo 3 -->
+        <div class="flex gap-5 items-start">
+          <div class="step-number">3</div>
+          <div>
+            <h3 class="text-xl font-bold mb-2">Cole o prompt abaixo</h3>
+            <p class="text-gray-400">Na tela do Build, cole o prompt que está logo abaixo. Ele contém todas as instruções para a IA criar seu aplicativo de análise de perfil.</p>
+          </div>
+        </div>
+
+        <!-- Passo 4 -->
+        <div class="flex gap-5 items-start">
+          <div class="step-number">4</div>
+          <div>
+            <h3 class="text-xl font-bold mb-2">Aguarde a IA criar o app</h3>
+            <p class="text-gray-400">Clique em Build e a plataforma gera tudo automaticamente. Ela cria a interface, a lógica de análise e o layout. Você só precisa esperar.</p>
+          </div>
+        </div>
+
+        <!-- Passo 5 -->
+        <div class="flex gap-5 items-start">
+          <div class="step-number">5</div>
+          <div>
+            <h3 class="text-xl font-bold mb-2">Teste e use</h3>
+            <p class="text-gray-400">O app vai pedir o <strong class="text-white">@arroba do perfil</strong>, a <strong class="text-white">URL do perfil</strong>, o <strong class="text-white">link da bio</strong> e um contexto. Clique em gerar análise e pronto. Análise completa: pontos fortes, fracos, estratégia de conteúdo e roteiro de 30 dias.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- =================== -->
+      <!-- Bloco do Prompt      -->
+      <!-- =================== -->
+      <div class="prompt-box glow-red">
+        <div class="flex items-center justify-between px-5 py-3 border-b border-white/5">
+          <span class="text-xs text-gray-500 font-medium tracking-wide uppercase">Prompt — Cole no Google AI Studio</span>
+          <button id="copyBtn" onclick="copyPrompt()" class="copy-btn flex items-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-400 text-sm font-medium">
+            <svg id="copyIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            <span id="copyText">Copiar prompt</span>
+          </button>
+        </div>
+        <div class="p-5 md:p-6 max-h-[500px] overflow-y-auto" style="scrollbar-width: thin; scrollbar-color: #333 transparent;">
+<pre id="promptContent" class="text-sm text-gray-300 leading-relaxed whitespace-pre-wrap break-words"><code>{
+  "objective": "Analisar profundamente um perfil do Instagram e sugerir melhorias estratégicas",
+  "input": {
+    "instagram_handle": "@usuario",
+    "profile_url": "https://instagram.com/usuario",
+    "bio_link": "https://site-do-usuario.com"
+  },
+  "instructions": [
+    "Acesse e analise o perfil do Instagram fornecido",
+    "Avalie bio, foto de perfil, destaques, feed e consistência de conteúdo",
+    "Identifique posicionamento, proposta de valor e clareza da comunicação",
+    "Analise o link da bio e avalie a coerência com o perfil",
+    "Identifique pontos fracos que prejudicam conversão e crescimento",
+    "Sugira melhorias práticas para bio, conteúdo, estética e estratégia",
+    "Sugira ideias de conteúdo com potencial de engajamento e crescimento",
+    "Aponte ajustes para aumentar autoridade, seguidores e conversões"
+  ],
+  "output_format": {
+    "profile_analysis": "Resumo da análise geral do perfil",
+    "strengths": ["Pontos fortes identificados"],
+    "weaknesses": ["Pontos fracos identificados"],
+    "bio_improvements": ["Sugestões específicas para bio"],
+    "content_strategy": ["Sugestões de conteúdo e linha editorial"],
+    "visual_improvements": ["Sugestões de estética e identidade visual"],
+    "conversion_optimization": ["Sugestões para aumentar conversão"],
+    "action_plan": ["Passos práticos e priorizados"]
+  }
+}</code></pre>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="py-8 text-center border-t border-white/5">
+    <p class="text-sm text-gray-600">&copy; 2026 Instituto Avalanche</p>
+  </footer>
+
+  <script>
+    function copyPrompt() {
+      const text = document.getElementById('promptContent').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const icon = document.getElementById('copyIcon');
+        const label = document.getElementById('copyText');
+        
+        btn.classList.add('copied');
+        label.textContent = 'Copiado!';
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>';
+        
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          label.textContent = 'Copiar prompt';
+          icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>';
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>
